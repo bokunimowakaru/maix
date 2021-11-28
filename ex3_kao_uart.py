@@ -1,11 +1,12 @@
 ###############################################################################
-# Example 1 顔検出 シリアル出力
+# Example 3 顔検出 シリアル出力
 #                        for Sipeed M1n Module AI Development Kit based on K210
 #
 #                        Copyright (c) 2021 Wataru KUNINO https://bokunimo.net/
 ###############################################################################
 # (参考文献) https://github.com/sipeed/MaixPy_scripts/
 #                        blob/master/machine_vision/face_find/demo_find_face.py
+#                        blob/master/hardware/demo_uart_loop.py
 
 import sensor, image
 import KPU as kpu
