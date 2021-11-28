@@ -8,7 +8,7 @@
 #                        blob/master/machine_vision/face_find/demo_find_face.py
 #                        blob/master/hardware/demo_uart_loop.py
 
-import sensor, image
+import sensor
 import KPU as kpu
 from fpioa_manager import fm
 from machine import UART

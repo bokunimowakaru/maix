@@ -7,7 +7,7 @@
 # (参考文献) https://github.com/sipeed/MaixPy_scripts/
 #                        blob/master/machine_vision/face_find/demo_find_face.py
 #                        blob/master/hardware/demo_gpio_led.py
-import sensor, image
+import sensor
 import KPU as kpu
 from Maix import GPIO
 from fpioa_manager import fm

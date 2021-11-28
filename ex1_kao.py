@@ -7,7 +7,7 @@
 # (参考文献) https://github.com/sipeed/MaixPy_scripts/
 #                        blob/master/machine_vision/face_find/demo_find_face.py
 
-import sensor, image
+import sensor
 import KPU as kpu
 
 # カメラ設定
