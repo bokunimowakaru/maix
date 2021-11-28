@@ -1,5 +1,5 @@
 ###############################################################################
-# Example 2 顔検出 LED
+# Example 2 AIカメラが顔検出したときに LED を点灯する
 #                        for Sipeed M1n Module AI Development Kit based on K210
 #
 #                        Copyright (c) 2021 Wataru KUNINO https://bokunimo.net/
@@ -10,37 +10,31 @@
 import sensor, image
 import KPU as kpu
 from Maix import GPIO
+from fpioa_manager import fm
 
 # LED設定
-led = GPIO(GPIO.GPIO7, GPIO.OUT)
+fm.register(7, fm.fpioa.GPIO0, force=True)
+led = GPIO(GPIO.GPIO0, GPIO.OUT)
 
 # カメラ設定
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
-sensor.set_hmirror(False)
-sensor.set_vflip(True)
+sensor.set_hmirror(True)
+sensor.set_vflip(False)
 sensor.run(1)
 
 # AI設定
 anchors = (1.889, 2.525, 2.947, 3.941, 4.0, 5.366, 5.155, 6.923, 6.718, 9.01)
-task = None
 task = kpu.load(0x300000)
 kpu.init_yolo2(task, 0.3, 0.1, len(anchors)//2, anchors)
 
-while(not task is None):
+while(True):
     img = sensor.snapshot()
     objects = kpu.run_yolo2(task, img)
-    n = 0
     if objects:
+        img.draw_rectangle(objects[0].rect())
         led.value(1)
-        n = len(objects)
-        for obj in objects:
-            img.draw_rectangle(obj.rect())
-            img.draw_string(obj.x(), obj.y(), str(obj.value()))
-            print(obj.rect(), end=', ')
-        print()
     else:
         led.value(0)
-    img.draw_string(0, 200, 'n=' + str(n), scale=2)
-kpu.deinit(task)
+    img.draw_string(0, 200, 'LED=' + str(led.value()), scale=2)
