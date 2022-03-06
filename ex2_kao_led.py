@@ -4,11 +4,10 @@
 #                   Copyright (c) 2021-2022 Wataru KUNINO https://bokunimo.net/
 ################################################################################
 
-
 import sensor, lcd                                  # カメラsensor,液晶lcdの組込
 import KPU as kpu                                   # AI演算ユニットKPUの組込
 from Maix import GPIO                               # GPIOモジュールの組込
-from fpioa_manager import fm                        # fmモジュールの組込
+from fpioa_manager import fm                        # FPIOA管理モジュールの組込
 
 fm.register(14, fm.fpioa.GPIO0, force=True)         # ポート14をGPIO0に割り当て
 led_r = GPIO(GPIO.GPIO0, GPIO.OUT)                  # GPIO0のオブジェクトled_r
