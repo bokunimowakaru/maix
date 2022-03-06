@@ -4,7 +4,7 @@
 # ・AI演算用のKPU(Neural Network Processing Unit)を使って顔検出を行います。
 # ・顔検出した範囲をLCDに表示するとともに、検出位置をログ出力します。
 #
-#                        Copyright (c) 2021 Wataru KUNINO https://bokunimo.net/
+#                   Copyright (c) 2021-2022 Wataru KUNINO https://bokunimo.net/
 ################################################################################
 # KModel を使った顔検出機能の動作確認と、基本プログラミングに使用します。
 # 実行前に下記の手順で、モデルをダウンロードしてボードに書き込んでください。
@@ -47,5 +47,6 @@ while(True):                                        # 永久ループ
     lcd.display(img)                                # imgをLCDに表示
 
 ################################################################################
-# (参考文献) https://github.com/sipeed/MaixPy_scripts/
-#                        blob/master/machine_vision/face_find/demo_find_face.py
+# (参考文献)
+#・demo_find_face.py
+# (https://github.com/sipeed/MaixPy_scripts/blob/master/machine_vision/face_find/)
