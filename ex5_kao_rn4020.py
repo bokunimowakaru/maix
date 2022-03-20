@@ -180,3 +180,5 @@ Device 00:1e:xx:xx:xx:xx (public), RSSI=-64
 # (https://wiki.sipeed.com/soft/maixpy/en/api_reference/Maix/gpio.html)
 # (https://wiki.sipeed.com/soft/maixpy/en/api_reference/Maix/fpioa.html)
 # (https://github.com/sipeed/MaixPy_scripts/blob/master/board/config_maix_dock.py)
+#・KPU情報
+# (https://wiki.sipeed.com/soft/maixpy/en/api_reference/Maix/kpu.html)

@@ -70,3 +70,5 @@ while(True):                                        # 永久ループ
 #・FPIOA情報
 # (https://wiki.sipeed.com/soft/maixpy/en/api_reference/Maix/fpioa.html)
 # (https://github.com/sipeed/MaixPy_scripts/blob/master/board/config_maix_dock.py)
+#・KPU情報
+# (https://wiki.sipeed.com/soft/maixpy/en/api_reference/Maix/kpu.html)

@@ -51,3 +51,5 @@ while(True):                                        # 永久ループ
 ################################################################################
 #・demo_find_face.py
 # (https://github.com/sipeed/MaixPy_scripts/blob/master/machine_vision/face_find/)
+#・KPU情報
+# (https://wiki.sipeed.com/soft/maixpy/en/api_reference/Maix/kpu.html)
