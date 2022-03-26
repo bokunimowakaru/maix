@@ -11,7 +11,7 @@ import KPU as kpu                                   # AI演算ユニットKPUの
 from machine import UART                            # UARTモジュールの組込
 from fpioa_manager import fm                        # FPIOA管理モジュールの組込
 
-fm.register(7, fm.fpioa.UART1_TX, force=True)       # ポート7をUART1_TXに割当
+fm.register(7, fm.fpioa.UART1_TX, force=True)       # IO7ピンをUART1_TXに割当
 uart = UART(UART.UART1, 115200, 8, 0, 1)            # UART1のオブジェクトuart
 uart.write('Hello!\n')                              # UART送信
 

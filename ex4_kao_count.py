@@ -49,7 +49,7 @@ def det_filter(obj, buf):                           # バッファとの一致�
                 break                               # 同一データでの重複加算防止
     return (det/Det_N, ndet/(BufHist_N - Det_N))    # detとndetを比率にして応答
 
-fm.register(7, fm.fpioa.UART1_TX, force=True)       # ポート7をUART1_TXに割当
+fm.register(7, fm.fpioa.UART1_TX, force=True)       # IO7ピンをUART1_TXに割当
 uart = UART(UART.UART1, 115200, 8, 0, 1)            # UART1のオブジェクトuart
 uart.write('0,0\n')                                 # UART送信(検知0,来場者数0)
 

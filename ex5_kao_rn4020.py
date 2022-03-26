@@ -19,7 +19,7 @@ Det_Thresh = 0.2                                    # 検出閾値(小さいほ�
 MotionFact = 2.0                                    # 動き判定係数(大ほど緩い)
 ExtentFact = 2.0                                    # 遠近判定係数(大ほど緩い)
 ErrorFact = 0.2                                     # 誤判定係数(大ほど緩い)
-ble_ad_id = 'CD00'                      # BLEビーコン用ID(先頭2バイト)
+ble_ad_id = 'CD00'                                  # BLEビーコン用ID(先頭2バイト)
 
 def det_filter(obj, buf):                           # バッファとの一致レベル計算
     if len(buf) < BufHist_N:                        # バッファ不足時
@@ -62,11 +62,11 @@ def rn4020(s = ''):                     # BLE RN4020との通信用の関数を�
         print('<',rx.strip())           # 受信結果を表示する
         sleep(0.1)                      # 0.1秒の待ち時間処理
 
-fm.register(7, fm.fpioa.UART1_TX, force=True)       # ポート7をUART1_TXに割当
-fm.register(6, fm.fpioa.UART1_RX, force=True)       # ポート8をUART1_RXに割当
+fm.register(7, fm.fpioa.UART1_TX, force=True)       # IO7ピンをUART1_TXに割当
+fm.register(6, fm.fpioa.UART1_RX, force=True)       # IO8ピンをUART1_RXに割当
 uart = UART(UART.UART1,115200,8,0,1,timeout=1000,read_buf_len=4096) # UART1設定
-fm.register(14, fm.fpioa.GPIO0, force=True)         # ポート14をGPIO0に割り当て
-fm.register(13, fm.fpioa.GPIO1, force=True)         # ポート13をGPIO1に割り当て
+fm.register(14, fm.fpioa.GPIO0, force=True)         # IO14ピンをGPIO0に割り当て
+fm.register(13, fm.fpioa.GPIO1, force=True)         # IO13ピンをGPIO1に割り当て
 led_r = GPIO(GPIO.GPIO0, GPIO.OUT)                  # GPIO0のオブジェクトled_r
 led_g = GPIO(GPIO.GPIO1, GPIO.OUT)                  # GPIO1のオブジェクトled_g
 led_stat = ['On','Off']                             # led状態

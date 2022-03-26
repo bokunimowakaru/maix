@@ -9,7 +9,7 @@ import KPU as kpu                                   # AI演算ユニットKPUの
 from Maix import GPIO                               # GPIOモジュールの組込
 from fpioa_manager import fm                        # FPIOA管理モジュールの組込
 
-fm.register(14, fm.fpioa.GPIO0, force=True)         # ポート14をGPIO0に割り当て
+fm.register(14, fm.fpioa.GPIO0, force=True)         # IO14ピンをGPIO0に割り当て
 led_r = GPIO(GPIO.GPIO0, GPIO.OUT)                  # GPIO0のオブジェクトled_r
 led_stat = ['On','Off']                             # led状態
 
