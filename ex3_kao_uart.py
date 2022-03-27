@@ -31,19 +31,19 @@ while(True):                                        # 永久ループ
     img = sensor.snapshot()                         # 撮影した写真をimgに代入
     objects = kpu.run_yolo2(task, img)              # 写真img内の顔検出を実行
     n = 0                                           # 検出件数を保持する変数n
-    s=''
+    s=''                                            # UART出力用の文字列変数s
     if objects:                                     # 1件以上検出したとき
         n = len(objects)                            # 検出件数を数値変数nに代入
         for obj in objects:                         # 個々の検出結果ごとの処理
             img.draw_rectangle(obj.rect())          # 検出範囲をimgに追記
             img.draw_string(obj.x(), obj.y(), str(obj.value())) # 文字列を追記
-            if len(s) > 0:
-                s += ', '
-            s += str(obj.rect())
-        print(s)						            # 検出結果をログ出力
-        uart.write(s + '\n')
+            if len(s) > 0:                          # s内に文字あり(for2回目～)
+                s += ', '                           # 文字列sにカンマを追記
+            s += str(obj.rect())                    # 文字列sに検出結果を追記
+        print(s)                                    # 検出結果をログ出力
+        uart.write(s + '\n')                        # 検出結果をUART出力
     img.draw_string(0, 190, 'n=' + str(n), scale=3) # 検出件数をimgに追記する
-    img.draw_string(0, 218, s, scale=2)
+    img.draw_string(0, 218, s, scale=2)             # UART出力結果をimgに追記
     lcd.display(img)                                # imgをLCDに表示
 
 ################################################################################
