@@ -19,7 +19,7 @@ Det_Thresh = 0.2                                    # 検出閾値(小さいほ�
 MotionFact = 2.0                                    # 動き判定係数(大ほど緩い)
 ExtentFact = 2.0                                    # 遠近判定係数(大ほど緩い)
 ErrorFact = 0.2                                     # 誤判定係数(大ほど緩い)
-ble_ad_id = 'CD00'                                  # BLEビーコン用ID(先頭2バイト)
+ble_ad_id = 'CD00'                                  # BLEビーコン用ID(先頭bytes)
 
 def det_filter(obj, buf):                           # バッファとの一致レベル計算
     if len(buf) < BufHist_N:                        # バッファ不足時
@@ -52,15 +52,15 @@ def det_filter(obj, buf):                           # バッファとの一致�
                 break                               # 同一データでの重複加算防止
     return (det/Det_N, ndet/(BufHist_N - Det_N))    # detとndetを比率にして応答
 
-def rn4020(s = ''):                     # BLE RN4020との通信用の関数を定義
-    if len(s) > 0:                      # 変数sが1文字以上あるとき
-        print('>',s)                    # 内容を表示
-        uart.write(s + '\n')            # コマンド送信
-        sleep(0.1)                      # 0.1秒の待ち時間処理
-    while uart.any() > 0:               # 受信バッファに文字があるとき
-        rx = uart.readline().decode()   # 受信データを変数sに代入する
-        print('<',rx.strip())           # 受信結果を表示する
-        sleep(0.1)                      # 0.1秒の待ち時間処理
+def rn4020(s = ''):                                 # BLE RN4020との通信用の関数
+    if len(s) > 0:                                  # 変数sが1文字以上あるとき
+        print('>',s)                                # 内容を表示
+        uart.write(s + '\n')                        # コマンド送信
+        sleep(0.1)                                  # 0.1秒の待ち時間処理
+    while uart.any() > 0:                           # 受信バッファに文字がある時
+        rx = uart.readline().decode()               # 受信データを変数sに代入
+        print('<',rx.strip())                       # 受信結果を表示する
+        sleep(0.1)                                  # 0.1秒の待ち時間処理
 
 fm.register(7, fm.fpioa.UART1_TX, force=True)       # IO7ピンをUART1_TXに割当
 fm.register(6, fm.fpioa.UART1_RX, force=True)       # IO8ピンをUART1_RXに割当
@@ -84,17 +84,17 @@ task = kpu.load(0x300000)
 kpu.init_yolo2(task, Det_Thresh, 0.1, len(anchors)//2, anchors)
 
 # BLE初期設定
-rn4020('V')                             # バージョン情報表示
-rn4020('SF,2')                          # 全設定の初期化
-sleep(0.5)                              # リセット待ち(1秒)
-rn4020()                                # 応答表示
-rn4020('SR,20000000')                   # 機能設定:アドバタイジング
-rn4020('SS,00000001')                   # サービス設定:ユーザ定義
-rn4020('SN,RN4020_AICAM')               # デバイス名:RN4020_AICAM
-rn4020('R,1')                           # RN4020を再起動
-sleep(3)                                # リセット後にアドバタイジング開始
-rn4020('D')                             # 情報表示
-rn4020('Y')                             # アドバタイジング停止
+rn4020('V')                                         # バージョン情報表示
+rn4020('SF,2')                                      # 全設定の初期化
+sleep(0.5)                                          # リセット待ち(1秒)
+rn4020()                                            # 応答表示
+rn4020('SR,20000000')                               # 機能設定:アドバタイジング
+rn4020('SS,00000001')                               # サービス設定:ユーザ定義
+rn4020('SN,RN4020_AICAM')                           # デバイス名:RN4020_AICAM
+rn4020('R,1')                                       # RN4020を再起動
+sleep(3)                                            # リセット待ち(送信開始)
+rn4020('D')                                         # 情報表示
+rn4020('Y')                                         # アドバタイジング停止
 
 buf = list()                                        # 撮影ごとの検知位置バッファ
 count = 0                                           # 来場者数
@@ -105,7 +105,7 @@ while(True):                                        # 永久ループ
     n = 0                                           # 検出件数を保持する変数n
     objs_rect = list()                              # 1撮影分の検出データ保持用
     if objects:                                     # 1人以上の顔を検出したとき
-        led_g.value(led_stat.index('On'))
+        led_g.value(led_stat.index('On'))           # 緑色LEDの点灯
         n = len(objects)                            # 検出件数を数値変数nに代入
         for obj in objects:                         # 個々の検出結果ごとの処理
             img.draw_rectangle(obj.rect())          # 検出範囲をimgに追記
@@ -118,21 +118,21 @@ while(True):                                        # 永久ループ
                 # det :直近のbufに顔が含まれているかどうかを確認(検知確認用)
                 # ndet:古いbufに顔が含まれていないことを確認(ndet:非検知確認用)
                 if det >= (1 + ErrorFact) * Det_Thresh and ndet <= ErrorFact:
-                    led_r.value(led_stat.index('On'))           # LEDを点灯(GPIOをLレベルに)
+                    led_r.value(led_stat.index('On')) # LEDを点灯(IOをLレベルに)
                     count += 1                      # 来場者数としてカウント
-                    s = ble_ad_id # BLE送信データの生成(16進数に変換)
-                    s += '{:02X}'.format(n%256)     # BLE送信データの生成(16進数に変換)
-                    s += '{:02X}'.format(count%256) # BLE送信データの生成(16進数に変換)
-                    s += '{:02X}'.format(count>>8)  # BLE送信データの生成(16進数に変換)
-                    rn4020('N,' + s)                    # データをブロードキャスト情報に設定
-                    rn4020('A,0064,00C8')               # 0.1秒間隔で0.2秒間のアドバタイズ
-                    sleep(0.1)                          # 0.1秒間の待ち時間処理
-                    rn4020('Y')                         # アドバタイジング停止
-                    buf.clear()                 # バッファをクリア
-                    led_r.value(led_stat.index('Off'))          # LEDを消灯(GPIOをHレベルに)
+                    s = ble_ad_id                   # BLEデータ生成(16進数変換)
+                    s += '{:02X}'.format(n%256)     # nの値を16進数に変換
+                    s += '{:02X}'.format(count%256) # count下位バイトを16進数に
+                    s += '{:02X}'.format(count>>8)  # count上位バイトを16進数に
+                    rn4020('N,' + s)                # ブロードキャスト情報に設定
+                    rn4020('A,0064,00C8')           # 0.1秒間隔0.2秒アドバタイズ
+                    sleep(0.1)                      # 0.1秒間の待ち時間処理
+                    rn4020('Y')                     # アドバタイジング停止
+                    buf.clear()                     # バッファをクリア
+                    led_r.value(led_stat.index('Off')) # LED消灯(IOをHレベルに)
                 vals.append((det,ndet))             # 各レベルを保持(ログ用)
             print(vals)                             # 検知レベルをログ表示
-        led_g.value(led_stat.index('Off'))
+        led_g.value(led_stat.index('Off'))          # 緑色LEDの消灯
     buf.append(objs_rect)                           # バッファに顔位置を保存
     if len(buf) > BufHist_N:                        # 最大容量を超過したとき
         del buf[0]                                  # 最も古いデータ1件を消去
