@@ -154,8 +154,9 @@ pi@raspberrypi:~/maix $ sudo ./ble_logger_aicam.py
 found RN4020 No. 1
 
 to Ambient:
-    body {'writeKey': 'xxxxxxxxxxxxxxxx', 'd1': 0, 'd2': 0, 'd3': None, 'd4': None, 'd5': None, 'd6': None, 'd7': None, 'd8': None}
+    body {'writeKey': '0123456789abcdef', 'd1': 0, 'd2': 0, 'd3': None, 'd4': None, 'd5': None, 'd6': None, 'd7': None, 'd8': None}
     Done
+    チャネルID(ambient_chid)が設定されていません
 
 Device 00:1e:xx:xx:xx:xx (public), RSSI=-64
 +----+--------------------------+----------------------------
@@ -171,8 +172,9 @@ Device 00:1e:xx:xx:xx:xx (public), RSSI=-64
     RSSI          = -59 dB
 
 to Ambient:
-    body {'writeKey': 'xxxxxxxxxxxxxxxx', 'd1': 1, 'd2': 12, 'd3': None, 'd4': None, 'd5': None, 'd6': None, 'd7': None, 'd8': None}
+    body {'writeKey': '0123456789abcdef', 'd1': 1, 'd2': 12, 'd3': None, 'd4': None, 'd5': None, 'd6': None, 'd7': None, 'd8': None}
     Done
+    チャネルID(ambient_chid)が設定されていません
 '''
 
 ################################################################################
