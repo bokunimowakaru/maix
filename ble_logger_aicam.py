@@ -193,6 +193,9 @@ def parser(dev):
                 rn4020mac.append(dev.addr)
                 rn4020dev[dev.addr] = value
                 print('\nfound RN4020 No.',len(rn4020dev))
+                if value == 'RN4020_AICAM':
+                    sensors['Number'] = 0
+                    sensors['Count'] = 0
         if desc == 'Manufacturer':
             val = value
             if dev.addr in rn4020mac and dev.addrType == 'public' and val[0:4] == 'cd00':
@@ -216,6 +219,7 @@ def parser(dev):
 
         sensors = dict()
         print('    isTargetDev   =',isTargetDev)
+        '''
 
         if isTargetDev == 'Sensor Medal':
             # センサ値を辞書型変数sensorsへ代入
@@ -335,7 +339,7 @@ def parser(dev):
             sensors['Temperature'] = payval(val, 4,2) / 65535. * 175. - 45.
             sensors['Humidity'] = payval(val, 6,2) / 65535. * 100.
             sensors['RSSI'] = dev.rssi
-
+        '''
         if isTargetDev == 'RN4020_AICAM':
             sensors['ID'] = hex(payval(val, 2,2))
             sensors['Number'] = payval(val, 4)
@@ -486,6 +490,7 @@ while True:
             body_dict['d2'] = sensors.get('Proximity')
             if not body_dict['d2']:
                 body_dict['d2'] = sensors.get('Count')
+        '''
         body_dict['d3'] = sensors.get('Pressure')
         body_dict['d4'] = sensors.get('Illuminance')
         if sensors.get('Button') is not None and len(sensors.get('Button')) >= 4:
@@ -504,13 +509,14 @@ while True:
             if body_dict['d' + str(i+1)] is None:
                 del body_dict['d' + str(i+1)]
         # print('body_dict',body_dict)
-
-        # クラウドへの送信処理
-        if ambient_interval > 0 and time_amb >= ambient_interval:
-            time_amb = 0
-            sendToAmbient(ambient_chid, head_dict, body_dict)
-
-
+        '''
+    # AiCAM専用(30秒ごとに強制送信)
+    for mac in rn4020mac:
+        if rn4020dev[mac] == 'RN4020_AICAM':
+            # クラウドへの送信処理
+            if ambient_interval > 0 and time_amb >= ambient_interval:
+                time_amb = 0
+                sendToAmbient(ambient_chid, head_dict, body_dict)
 
 ''' 実行結果の一例
 pi@raspberrypi:~ $ cd
