@@ -147,6 +147,7 @@ while(True):                                        # 永久ループ
 #
 # ble_logger_aicam.py
 '''
+pi@raspberrypi:~ $ sudo pip3 install bluepy
 pi@raspberrypi:~ $ git clone https://bokunimo.net/git/maix
 pi@raspberrypi:~ $ cd maix
 pi@raspberrypi:~/maix $ sudo ./ble_logger_aicam.py
