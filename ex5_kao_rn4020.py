@@ -120,6 +120,7 @@ while(True):                                        # 永久ループ
                 if det >= (1 + ErrorFact) * Det_Thresh and ndet <= ErrorFact:
                     led_r.value(led_stat.index('On')) # LEDを点灯(IOをLレベルに)
                     count += 1                      # 来場者数としてカウント
+                    count %= 65536                  # 65536以上でリセット
                     s = ble_ad_id                   # BLEデータ生成(16進数変換)
                     s += '{:02X}'.format(n%256)     # nの値を16進数に変換
                     s += '{:02X}'.format(count%256) # count下位バイトを16進数に
