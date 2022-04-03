@@ -89,7 +89,8 @@ while(True):                                        # 永久ループ
                     count += 1                      # 来場者数としてカウント
                     uart.write(str(n)+',')          # 現在の検知数をシリアル出力
                     uart.write(str(count)+'\n')     # 来場者数をシリアル出力
-                    buf.clear()                     # バッファをクリア
+                    for i in range(BufHist_N):      # 非検知確認用の区間
+                        buf[i] = objs_rect          # バッファを最新値で上書き
                 vals.append((det,ndet))             # 各レベルを保持(ログ用)
             print(vals)                             # 検知レベルをログ表示
     buf.append(objs_rect)                           # バッファに顔位置を保存

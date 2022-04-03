@@ -128,7 +128,8 @@ while(True):                                        # 永久ループ
                     rn4020('A,0064,00C8')           # 0.1秒間隔0.2秒アドバタイズ
                     sleep(0.1)                      # 0.1秒間の待ち時間処理
                     rn4020('Y')                     # アドバタイジング停止
-                    buf.clear()                     # バッファをクリア
+                    for i in range(BufHist_N):      # 非検知確認用の区間
+                        buf[i] = objs_rect          # バッファを最新値で上書き
                     led_r.value(led_stat.index('Off')) # LED消灯(IOをHレベルに)
                 vals.append((det,ndet))             # 各レベルを保持(ログ用)
             print(vals)                             # 検知レベルをログ表示
