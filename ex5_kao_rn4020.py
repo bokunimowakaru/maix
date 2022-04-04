@@ -121,8 +121,6 @@ while(True):                                        # 永久ループ
                     objs_det.append(objs_rect[objects.index(obj)]) # 顔位置保持
                     if ndet <= ErrorFact:           # 古いbufに含まれていない時
                         count_new += 1              # 新規検出数に1を加算
-                        uart.write(str(n)+',')      # 現在の検知数をシリアル出力
-                        uart.write(str(count)+'\n') # 来場者数をシリアル出力
             n = len(objs_det)                       # 検出件数を数値変数nに代入
             if n > 0:                               # 顔検出結果がある時
                 print(objs_det)                     # 顔検出結果をログ表示
