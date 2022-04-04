@@ -106,34 +106,41 @@ while(True):                                        # 永久ループ
     objs_rect = list()                              # 1撮影分の検出データ保持用
     if objects:                                     # 1人以上の顔を検出したとき
         led_g.value(led_stat.index('On'))           # 緑色LEDの点灯
-        n = len(objects)                            # 検出件数を数値変数nに代入
         for obj in objects:                         # 個々の検出結果ごとの処理
             img.draw_rectangle(obj.rect())          # 検出範囲をimgに追記
             img.draw_string(obj.x(), obj.y(), str(obj.value())) # 文字列を追記
-            objs_rect.append([obj.x(), obj.y(), obj.w(), obj.h(), obj.value()])
+            objs_rect.append((obj.x(), obj.y(), obj.w(), obj.h(), obj.value()))
         if len(buf) >=  BufHist_N:                  # バッファ数を満たすとき
-            vals = list()                           # 検知レベル保持用(ログ用)
+            objs_det = list()                       # 顔検出した結果の保持用
+            count_new = 0                           # 新規の検出数
             for obj in objects:                     # 個々の検出結果ごとの処理
-                (det,ndet) = det_filter(obj, buf)
+                (det,ndet) = det_filter(obj, buf)   # 関数det_filterを実行
                 # det :直近のbufに顔が含まれているかどうかを確認(検知確認用)
                 # ndet:古いbufに顔が含まれていないことを確認(ndet:非検知確認用)
-                if det >= (1 + ErrorFact) * Det_Thresh and ndet <= ErrorFact:
-                    led_r.value(led_stat.index('On')) # LEDを点灯(IOをLレベルに)
-                    count += 1                      # 来場者数としてカウント
-                    count %= 65536                  # 65536以上でリセット
-                    s = ble_ad_id                   # BLEデータ生成(16進数変換)
-                    s += '{:02X}'.format(n%256)     # nの値を16進数に変換
-                    s += '{:02X}'.format(count%256) # count下位バイトを16進数に
-                    s += '{:02X}'.format(count>>8)  # count上位バイトを16進数に
-                    rn4020('N,' + s)                # ブロードキャスト情報に設定
-                    rn4020('A,0064,00C8')           # 0.1秒間隔0.2秒アドバタイズ
-                    sleep(0.1)                      # 0.1秒間の待ち時間処理
-                    rn4020('Y')                     # アドバタイジング停止
-                    for i in range(BufHist_N):      # 非検知確認用の区間
-                        buf[i] = objs_rect          # バッファを最新値で上書き
-                    led_r.value(led_stat.index('Off')) # LED消灯(IOをHレベルに)
-                vals.append((det,ndet))             # 各レベルを保持(ログ用)
-            print(vals)                             # 検知レベルをログ表示
+                if det >= (1 + ErrorFact) * Det_Thresh: # 直近bufに含まれてる時
+                    objs_det.append(objs_rect[objects.index(obj)]) # 顔位置保持
+                    if ndet <= ErrorFact:           # 古いbufに含まれていない時
+                        count_new += 1              # 新規検出数に1を加算
+                        uart.write(str(n)+',')      # 現在の検知数をシリアル出力
+                        uart.write(str(count)+'\n') # 来場者数をシリアル出力
+            n = len(objs_det)                       # 検出件数を数値変数nに代入
+            if n > 0:                               # 顔検出結果がある時
+                print(objs_det)                     # 顔検出結果をログ表示
+            if count_new > 0:                       # 新しい顔検出結果がある時
+                count += count_new                  # 来場者数(累計)に加算
+                for i in range(BufHist_N):          # 非検知確認用の区間
+                    buf[i] = objs_det               # バッファを最新値で上書き
+                led_r.value(led_stat.index('On'))   # LEDを点灯(IOをLレベルに)
+                count %= 65536                      # 65536以上でリセット
+                s = ble_ad_id                       # BLEデータ生成(16進数変換)
+                s += '{:02X}'.format(n%256)         # nの値を16進数に変換
+                s += '{:02X}'.format(count%256)     # count下位バイトを16進数に
+                s += '{:02X}'.format(count>>8)      # count上位バイトを16進数に
+                rn4020('N,' + s)                    # ブロードキャスト情報に設定
+                rn4020('A,0064,00C8')               # 0.1秒間隔0.2秒アドバタイズ
+                sleep(0.1)                          # 0.1秒間の待ち時間処理
+                rn4020('Y')                         # アドバタイジング停止
+                led_r.value(led_stat.index('Off'))  # LED消灯(IOをHレベルに)
         led_g.value(led_stat.index('Off'))          # 緑色LEDの消灯
     buf.append(objs_rect)                           # バッファに顔位置を保存
     if len(buf) > BufHist_N:                        # 最大容量を超過したとき

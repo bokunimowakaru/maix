@@ -66,7 +66,7 @@ task = kpu.load(0x300000)
 kpu.init_yolo2(task, Det_Thresh, 0.1, len(anchors)//2, anchors)
 
 buf = list()                                        # 撮影ごとの検知位置バッファ
-count = 0                                           # 来場者数
+count = 0                                           # 来場者数(累計)
 
 while(True):                                        # 永久ループ
     img = sensor.snapshot()                         # 撮影した写真をimgに代入
@@ -74,25 +74,30 @@ while(True):                                        # 永久ループ
     n = 0                                           # 検出件数を保持する変数n
     objs_rect = list()                              # 1撮影分の検出データ保持用
     if objects:                                     # 1人以上の顔を検出したとき
-        n = len(objects)                            # 検出件数を数値変数nに代入
         for obj in objects:                         # 個々の検出結果ごとの処理
             img.draw_rectangle(obj.rect())          # 検出範囲をimgに追記
             img.draw_string(obj.x(), obj.y(), str(obj.value())) # 文字列を追記
-            objs_rect.append([obj.x(), obj.y(), obj.w(), obj.h(), obj.value()])
+            objs_rect.append((obj.x(), obj.y(), obj.w(), obj.h(), obj.value()))
         if len(buf) >=  BufHist_N:                  # バッファ数を満たすとき
-            vals = list()                           # 検知レベル保持用(ログ用)
+            objs_det = list()                       # 顔検出した結果の保持用
+            count_new = 0                           # 新規の検出数
             for obj in objects:                     # 個々の検出結果ごとの処理
-                (det,ndet) = det_filter(obj, buf)
+                (det,ndet) = det_filter(obj, buf)   # 関数det_filterを実行
                 # det :直近のbufに顔が含まれているかどうかを確認(検知確認用)
                 # ndet:古いbufに顔が含まれていないことを確認(ndet:非検知確認用)
-                if det >= (1 + ErrorFact) * Det_Thresh and ndet <= ErrorFact:
-                    count += 1                      # 来場者数としてカウント
-                    uart.write(str(n)+',')          # 現在の検知数をシリアル出力
-                    uart.write(str(count)+'\n')     # 来場者数をシリアル出力
-                    for i in range(BufHist_N):      # 非検知確認用の区間
-                        buf[i] = objs_rect          # バッファを最新値で上書き
-                vals.append((det,ndet))             # 各レベルを保持(ログ用)
-            print(vals)                             # 検知レベルをログ表示
+                if det >= (1 + ErrorFact) * Det_Thresh: # 直近bufに含まれてる時
+                    objs_det.append(objs_rect[objects.index(obj)]) # 顔位置保持
+                    if ndet <= ErrorFact:           # 古いbufに含まれていない時
+                        count_new += 1              # 新規検出数に1を加算
+                        uart.write(str(n)+',')      # 現在の検知数をシリアル出力
+                        uart.write(str(count)+'\n') # 来場者数をシリアル出力
+            n = len(objs_det)                       # 検出件数を数値変数nに代入
+            if n > 0:                               # 顔検出結果がある時
+                print(objs_det)                     # 顔検出結果をログ表示
+            if count_new > 0:                       # 新しい顔検出結果がある時
+                count += count_new                  # 来場者数(累計)に加算
+                for i in range(BufHist_N):          # 非検知確認用の区間
+                    buf[i] = objs_det               # バッファを最新値で上書き
     buf.append(objs_rect)                           # バッファに顔位置を保存
     if len(buf) > BufHist_N:                        # 最大容量を超過したとき
         del buf[0]                                  # 最も古いデータ1件を消去
@@ -116,7 +121,7 @@ while(True):                                        # 永久ループ
 # ログ出力例 検知した顔の数だけ,その検知レベルを直近と過去に分けて出力する
 ################################################################################
 '''
-1人の顔を見つけてレベルが上がる様子
+1人の顔を見つけてレベルが上がる様子 ※(det,ndet)を配列変数に保持して表示した場合
 [(0.0, 0.0)]                非検知状態
 [(0.1666667, 0.0)]          直近に顔を検出
 [(0.3521199, 0.0)]          数値が増大(閾値を超過すると来場者としてカウント)
